@@ -113,6 +113,9 @@ const CanvasConfig = {
         glowEnabled: true,                // Enable particle glow effects
         glowBlur: 15,                     // Glow blur amount
         rainGlowBlur: 20,                 // Rain glow blur amount
+        heroHeight: '35vh',               // Hero section height (CSS value: '25vh', '600px', etc.)
+        heroMinHeight: '200px',           // Minimum hero height
+        heroMaxHeight: '420px',           // Maximum hero height (fixed cap for consistency)
     },
     
     // Keyboard Controls

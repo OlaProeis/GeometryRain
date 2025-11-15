@@ -14,10 +14,18 @@ document.addEventListener('DOMContentLoaded', () => {
         colors: { particles: ['rgba(255, 255, 255, ', 'rgba(59, 130, 246, ', 'rgba(34, 211, 238, ', 'rgba(148, 163, 184, ', 'rgba(249, 115, 22, '], rain: ['rgba(100, 200, 255, ', 'rgba(120, 180, 255, ', 'rgba(80, 190, 255, ', 'rgba(90, 210, 255, '], implosion: ['rgba(100, 200, 255, ', 'rgba(150, 220, 255, ', 'rgba(200, 230, 255, ', 'rgba(255, 255, 255, '], connectionLine: 'rgba(59, 130, 246, ', hoverIndicator: 'rgba(59, 130, 246, ', ripple: 'rgba(59, 130, 246, ' },
         physics: { gravity: 0.05, airResistance: 0.99, springForce: 0.05, rainSpringForce: 0.03, damping: 0.85, rainDamping: 0.95 },
         connections: { enabled: true, maxDistance: 100, formationMaxDistance: 150, opacity: 0.3, formationOpacity: 0.6, formationLineWidth: 2, regularLineWidth: 1 },
-        canvas: { fadeTrailOpacity: 0.8, backgroundColor: 'rgba(15, 23, 42, ', glowEnabled: true, glowBlur: 15, rainGlowBlur: 20 },
+        canvas: { fadeTrailOpacity: 0.8, backgroundColor: 'rgba(15, 23, 42, ', glowEnabled: true, glowBlur: 15, rainGlowBlur: 20, heroHeight: '25vh', heroMinHeight: '280px', heroMaxHeight: '320px' },
         controls: { spacebarExplosion: true, clearAll: 'c', dissolveShapes: 'd', toggleRain: 'r' },
         performance: { optimizeConnections: true, connectionOptimizeThreshold: 200, connectionSkipStep: 2, hideConnectionsThreshold: 300 }
     };
+
+    // Apply hero height settings from config
+    const hero = document.querySelector('.hero');
+    if (hero && config.canvas) {
+        if (config.canvas.heroHeight) hero.style.height = config.canvas.heroHeight;
+        if (config.canvas.heroMinHeight) hero.style.minHeight = config.canvas.heroMinHeight;
+        if (config.canvas.heroMaxHeight) hero.style.maxHeight = config.canvas.heroMaxHeight;
+    }
 
     let mouse = {
         x: null,
@@ -921,24 +929,39 @@ document.addEventListener('DOMContentLoaded', () => {
         const allInitialShapes = ['50%', '0%', '30%', '20%', '40% 60%', '30% 70%'];
         spinShape.style.borderRadius = allInitialShapes[Math.floor(Math.random() * allInitialShapes.length)];
         
+        let resizeTimeout;
         const updatePosition = () => {
-            if (heroContent) {
-                const heroTitle = heroContent.querySelector('.hero-title');
-                if (heroTitle) {
-                    const titleRect = heroTitle.getBoundingClientRect();
-                    const heroRect = hero.getBoundingClientRect();
-                    
-                    const leftOffset = titleRect.left - heroRect.left + config.uiElements.spinningLogo.offsetX;
-                    const topOffset = titleRect.top - heroRect.top + (titleRect.height / 2) - (config.uiElements.spinningLogo.size / 2) + config.uiElements.spinningLogo.offsetY;
-                    
-                    spinShape.style.left = `${leftOffset}px`;
-                    spinShape.style.top = `${topOffset}px`;
+            // Use requestAnimationFrame to ensure layout is complete
+            requestAnimationFrame(() => {
+                if (heroContent) {
+                    const heroTitle = heroContent.querySelector('.hero-title');
+                    if (heroTitle) {
+                        const titleRect = heroTitle.getBoundingClientRect();
+                        const heroRect = hero.getBoundingClientRect();
+                        
+                        const leftOffset = titleRect.left - heroRect.left + config.uiElements.spinningLogo.offsetX;
+                        const topOffset = titleRect.top - heroRect.top + (titleRect.height / 2) - (config.uiElements.spinningLogo.size / 2) + config.uiElements.spinningLogo.offsetY;
+                        
+                        spinShape.style.left = `${leftOffset}px`;
+                        spinShape.style.top = `${topOffset}px`;
+                    }
                 }
-            }
+            });
+        };
+        
+        // Debounced resize handler to prevent rapid recalculations
+        const handleResize = () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(updatePosition, 100);
         };
         
         updatePosition();
-        window.addEventListener('resize', updatePosition);
+        window.addEventListener('resize', handleResize);
+        
+        // Also update when fonts load (can affect title size)
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(updatePosition);
+        }
         
         hero.appendChild(spinShape);
         startEnhancedMorphing(spinShape);

@@ -26,11 +26,13 @@ body {
 .hero {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     color: white;
-    padding: 2rem 2rem 8rem 2rem;
+    padding: 2rem 2rem 6rem 2rem;
     text-align: left;
     position: relative;
     overflow: hidden;
-    min-height: 500px;
+    min-height: 280px;
+    max-height: 320px;
+    height: 25vh;
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
@@ -167,14 +169,25 @@ footer p {
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+    .hero {
+        min-height: 260px;
+        max-height: 280px;
+        height: 22vh;
+        padding: 1.5rem 2rem 5rem 2rem;
+    }
+}
+
 @media (max-width: 768px) {
     .hero-content {
         margin-left: 0;
     }
     
     .hero {
-        min-height: 400px;
-        padding: 2rem 1.5rem 6rem 1.5rem;
+        min-height: 250px;
+        max-height: 280px;
+        height: 28vh;
+        padding: 1.5rem 1.5rem 5rem 1.5rem;
     }
     
     .hero-title {
